@@ -3,7 +3,7 @@
 import { useStoreModal } from '@/hooks/useStoreModal';
 import { useEffect } from 'react';
 
-export default function HomePage() {
+export default function SetupPage() {
   const onOpen = useStoreModal((state) => state.onOpen);
   const isOpen = useStoreModal((state) => state.isOpen);
 
@@ -13,5 +13,5 @@ export default function HomePage() {
     }
   }, [isOpen, onOpen]);
 
-  return <div className='p-4'>Home Page</div>;
+  return null;
 }
