@@ -43,7 +43,9 @@ export default function StoreModal() {
       setLoading(true);
 
       const response = await axios.post('/api/stores', values);
-      toast.success('Store successfully created!');
+
+      // this will ensure a hard refresh on the page as opposed to a soft navigation with next router.
+      window.location.assign(`/${response.data.id}`);
     } catch (error) {
       toast.error('Something went wrong!');
     } finally {
