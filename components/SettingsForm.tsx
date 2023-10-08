@@ -8,11 +8,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
+import { Trash } from 'lucide-react';
 
 // components
 import Heading from '@/components/ui/heading';
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   Form,
@@ -22,7 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from './ui/input';
+import { Input } from '@/components/ui/input';
+import AlertModal from '@/components/modals/AlertModal';
+import ApiAlert from '@/components/ui/api-alert';
+import { useOrigin } from '@/hooks/useOrigin';
 
 type Props = {
   initialData: Store;
@@ -39,6 +42,7 @@ export default function SettingsForm({ initialData }: Props) {
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const router = useRouter();
+  const origin = useOrigin();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
@@ -48,6 +52,8 @@ export default function SettingsForm({ initialData }: Props) {
   async function onSubmit(values: SettingsFormValues) {
     try {
       await axios.patch(`/api/stores/${params.storeId}`, values);
+      router.refresh();
+      toast.success('Store updated.');
     } catch (error) {
       toast.error('Something went wrong!');
     } finally {
@@ -55,8 +61,29 @@ export default function SettingsForm({ initialData }: Props) {
     }
   }
 
+  async function onDelete() {
+    try {
+      setLoading(true);
+      await axios.delete(`/api/stores/${params.storeId}`);
+      router.refresh();
+      router.push('/');
+      toast.success('Store deleted.');
+    } catch (error) {
+      toast.error('Make sure to remove all products and categories first!');
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
+  }
+
   return (
     <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        loading={loading}
+        onConfirm={onDelete}
+      />
       <div className='flex items-center justify-between'>
         <Heading title='Settings' description='Manage store preferences' />
         <Button
@@ -98,6 +125,12 @@ export default function SettingsForm({ initialData }: Props) {
           </Button>
         </form>
       </Form>
+      <Separator />
+      <ApiAlert
+        title='NEXT_PUBLIC_API_URL'
+        description={`${origin}/api/${params.storeId}`}
+        variant='public'
+      />
     </>
   );
 }
