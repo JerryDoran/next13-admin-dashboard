@@ -24,8 +24,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AlertModal from '@/components/modals/AlertModal';
-import ApiAlert from '@/components/ui/api-alert';
-import { useOrigin } from '@/hooks/useOrigin';
+import ImageUpload from '../ImageUpload';
 
 const formSchema = z.object({
   label: z.string().min(2),
@@ -43,7 +42,6 @@ export default function BillboardForm({ initialData }: Props) {
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
 
   const title = initialData ? 'Edit billboard' : 'Create billboard';
   const description = initialData ? 'Edit a billboard' : 'Add a new billboard';
@@ -62,9 +60,18 @@ export default function BillboardForm({ initialData }: Props) {
 
   async function onSubmit(values: BillboardFormValues) {
     try {
-      await axios.patch(`/api/stores/${params.storeId}`, values);
+      setLoading(true);
+      if (initialData) {
+        await axios.patch(
+          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          values
+        );
+      } else {
+        await axios.post(`/api/${params.storeId}/billboards`, values);
+      }
       router.refresh();
-      toast.success('Store updated.');
+      router.push(`/${params.storeId}/billboards`);
+      toast.success(toastMessage);
     } catch (error) {
       toast.error('Something went wrong!');
     } finally {
@@ -75,12 +82,16 @@ export default function BillboardForm({ initialData }: Props) {
   async function onDelete() {
     try {
       setLoading(true);
-      await axios.delete(`/api/stores/${params.storeId}`);
+      await axios.delete(
+        `/api/${params.storeId}/billboards/${params.billboardId}`
+      );
       router.refresh();
-      router.push('/');
-      toast.success('Store deleted.');
+      router.push(`/${params.storeId}/billboards`);
+      toast.success('Billboard deleted.');
     } catch (error) {
-      toast.error('Make sure to remove all products and categories first!');
+      toast.error(
+        'Make sure to remove all categories using this billboard first!'
+      );
     } finally {
       setLoading(false);
       setOpen(false);
@@ -112,8 +123,26 @@ export default function BillboardForm({ initialData }: Props) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-8 w-full'
+          className='w-full space-y-8'
         >
+          <FormField
+            control={form.control}
+            name='imageUrl'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Background image</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value ? [field.value] : []}
+                    disabled={loading}
+                    onChange={(url) => field.onChange(url)}
+                    onRemove={() => field.onChange('')}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className='grid grid-cols-3 gap-8'>
             <FormField
               control={form.control}
@@ -139,11 +168,6 @@ export default function BillboardForm({ initialData }: Props) {
         </form>
       </Form>
       <Separator />
-      {/* <ApiAlert
-        title='NEXT_PUBLIC_API_URL'
-        description={`${origin}/api/${params.storeId}`}
-        variant='public'
-      /> */}
     </>
   );
 }
