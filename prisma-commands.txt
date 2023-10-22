@@ -1,0 +1,5 @@
+after creating a new model(table) in prisma schema do the following:
+  - npx prisma generate
+  - npx prisma db push
+
+database is located at planetscale.com

@@ -5,7 +5,6 @@ import { ClerkProvider } from '@clerk/nextjs';
 
 // components
 import ModalProvider from '@/providers/ModalProvider';
-import prismadb from '@/lib/prismadb';
 import ToastProvider from '@/providers/ToastProvider';
 
 const inter = Inter({ subsets: ['latin'] });
