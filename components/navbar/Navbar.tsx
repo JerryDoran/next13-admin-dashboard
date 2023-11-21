@@ -1,6 +1,7 @@
 import { UserButton, auth } from '@clerk/nextjs';
 import Nav from './Nav';
 import StoreSwitcher from '@/components/StoreSwitcher';
+import ModeToggle from '@/components/ThemeToggle';
 import { redirect } from 'next/navigation';
 import prismadb from '@/lib/prismadb';
 
@@ -23,6 +24,7 @@ export default async function Navbar() {
         <StoreSwitcher items={stores} />
         <Nav className='px-6 pt-1' />
         <div className='ml-auto flex items-center space-x-4'>
+          <ModeToggle />
           <UserButton afterSignOutUrl='/' />
         </div>
       </div>
