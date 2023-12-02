@@ -40,7 +40,6 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    searchKey,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
